@@ -9,7 +9,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
 
 import FontGuard from '@/guards/font-guard'
-import { BottomSheetProvider, useBottomSheet } from '@/hooks/useBottomSheets'
+import { BottomSheetProvider, useBottomSheet } from '@/hooks/use-bottom-sheets'
 import { queryClient } from '@/libs/react-query'
 
 export { ErrorBoundary } from 'expo-router'
