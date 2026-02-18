@@ -7,8 +7,7 @@ import { StatusBar } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
-
-import FontGuard from '@/guards/font-guard'
+import { FontGuard } from '@/guards/font-guard'
 import { BottomSheetProvider, useBottomSheet } from '@/hooks/use-bottom-sheets'
 import { queryClient } from '@/libs/react-query'
 
