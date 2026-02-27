@@ -2,6 +2,13 @@
 
 Purpose: quick, actionable guidance so AI agents can modify and extend this Expo + React Native project safely.
 
+Change mapping (where to record changes)
+- Component or UI code changes and component design rules: record and follow `./.github/react-native-components.md` and implement code under `src/components/`.
+- Project structure & reorganization tasks: record in the skill `./.github/skills/restructure-expo-project/SKILL.md` and implement refactors under `src/` as needed.
+- Behavioral changes, global app guidance, and onboarding notes: record in this file (`.github/copilot-instructions.md`).
+
+When you modify components, update `./.github/react-native-components.md` with the rationale and usage examples. When you change folder structure or move files, update the `restructure-expo-project` skill notes.
+
 - Big picture: This is an Expo app using `expo-router` for filesystem routing and React Query for data fetching. Root layout is in [src/app/\_layout.tsx](src/app/_layout.tsx#L1-L120) which composes providers: `QueryClientProvider`, `BottomSheetProvider`, `KeyboardProvider`, and `FontGuard`.
 
 - Key workflows:

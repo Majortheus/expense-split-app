@@ -13,7 +13,7 @@ export function Typography({ children, className, variant = 'text-md', truncate 
 	return (
 		<Text
 			className={twMerge(
-				'text-gray-700',
+				'text-gray-100',
 				clsx(
 					{
 						/* label (Inter, SemiBold, 150%) */

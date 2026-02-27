@@ -3,23 +3,23 @@ import type { ComponentType, JSX } from 'react'
 import type { ViewProps } from 'react-native'
 import { Platform, View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
-import Add from './icons/streamline/add-1'
-import Asterisk from './icons/streamline/asterisk-1'
-import BlankCalendar from './icons/streamline/blank-calendar'
-import StreamlineBulletListIcon from './icons/streamline/bullet-list'
-import BulletListSolid from './icons/streamline/bullet-list-solid'
-import Check from './icons/streamline/check'
-import Delete1 from './icons/streamline/delete-1'
-import DollarCoin from './icons/streamline/dollar-coin-1'
-import MailSend from './icons/streamline/mail-send-envelope'
-import Pencil from './icons/streamline/pencil'
-import PieChart from './icons/streamline/pie-chart'
-import PieChartSolid from './icons/streamline/pie-chart-solid'
-import RecycleBin from './icons/streamline/recycle-bin-2'
-import UserCircle from './icons/streamline/user-circle-single'
-import UserMultiple from './icons/streamline/user-multiple-group'
-import UserMultipleSolid from './icons/streamline/user-multiple-group-solid'
-import WarningOctagon from './icons/streamline/warning-octagon'
+import Add from '@/components/icons/streamline/add-1'
+import Asterisk from '@/components/icons/streamline/asterisk-1'
+import BlankCalendar from '@/components/icons/streamline/blank-calendar'
+import StreamlineBulletListIcon from '@/components/icons/streamline/bullet-list'
+import BulletListSolid from '@/components/icons/streamline/bullet-list-solid'
+import Check from '@/components/icons/streamline/check'
+import Delete1 from '@/components/icons/streamline/delete-1'
+import DollarCoin from '@/components/icons/streamline/dollar-coin-1'
+import MailSend from '@/components/icons/streamline/mail-send-envelope'
+import Pencil from '@/components/icons/streamline/pencil'
+import PieChart from '@/components/icons/streamline/pie-chart'
+import PieChartSolid from '@/components/icons/streamline/pie-chart-solid'
+import RecycleBin from '@/components/icons/streamline/recycle-bin-2'
+import UserCircle from '@/components/icons/streamline/user-circle-single'
+import UserMultiple from '@/components/icons/streamline/user-multiple-group'
+import UserMultipleSolid from '@/components/icons/streamline/user-multiple-group-solid'
+import WarningOctagon from '@/components/icons/streamline/warning-octagon'
 
 type IconComponent = ComponentType<Partial<SvgProps> & { className?: string }>
 
@@ -43,9 +43,11 @@ const ICON_MAP = {
 	'warning-octagon': WarningOctagon,
 }
 
+export type IconNames = keyof typeof ICON_MAP
+
 export type IconProps = Partial<SvgProps> &
 	Partial<ViewProps> & {
-		name: keyof typeof ICON_MAP
+		name: IconNames
 		className?: string
 	}
 

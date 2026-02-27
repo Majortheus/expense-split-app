@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "prebuild": "expo prebuild --clean",
     "format": "biome format src --write",
-    "lint": "biome check src"
+    "lint": "biome check src --write --unsafe"
   },
   "dependencies": {
     "@backpackapp-io/react-native-toast": "^0.15.1",
