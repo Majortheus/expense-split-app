@@ -5,9 +5,10 @@ type Props = KeyboardAwareScrollViewProps & {}
 export function KeyboardScroll({ children, ...rest }: Props) {
 	return (
 		<KeyboardAwareScrollView
-			keyboardShouldPersistTaps={'handled'}
-			bottomOffset={30}
+			keyboardShouldPersistTaps={'never'}
+			bottomOffset={150}
 			contentContainerStyle={[{ flexGrow: 1 }, rest.contentContainerStyle]}
+			extraKeyboardSpace={100}
 			{...rest}
 		>
 			{children}

@@ -39,7 +39,7 @@ export function Input({ name, className, ...props }: InputProps) {
 								'flex-row items-center rounded-lg border bg-gray-800 pt-3 pr-4 pb-3 pl-4 text-gray-200 outline-0 placeholder:text-gray-400',
 								borderClasses,
 							)}
-							onChange={onChange}
+							onChangeText={onChange}
 							value={value}
 							{...props}
 						/>

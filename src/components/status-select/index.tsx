@@ -1,6 +1,5 @@
 import clsx from 'clsx'
 import type { ComponentProps } from 'react'
-import { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { TouchableOpacity, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
