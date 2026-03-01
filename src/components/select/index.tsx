@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Modal, Pressable, TouchableOpacity, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import { AndroidSoftInputModes, KeyboardAvoidingView, KeyboardController } from 'react-native-keyboard-controller'
 import { twMerge } from 'tailwind-merge'
 import { Input } from '@/components/input'
 import { Typography } from '@/components/typography'
+import { Icon } from '../icon'
 
 export interface SelectOption {
 	label: string
@@ -19,17 +19,18 @@ export interface SelectProps extends ComponentProps<typeof View> {
 	name: string
 	options: SelectOption[]
 	placeholder?: string
+	multiple?: boolean
 }
 
-export function Select({ name, options, placeholder, className, ...props }: SelectProps) {
-	const { control, setValue, setError, clearErrors, watch } = useFormContext()
+export function Select({ name, options, placeholder, multiple = false, ...props }: SelectProps) {
+	const { control, setError, clearErrors, watch } = useFormContext()
 	const [open, setOpen] = useState(false)
-	const inputValue = watch(`${name}-search-input`)
+	const inputValue: string = watch(`${name}-search-input`)
+	const selected: string[] = watch(name) ?? []
 
 	const filtered = useMemo(() => {
-		if (!inputValue) return options
-		return options.filter((o) => o.label.toLowerCase().includes(inputValue.toLowerCase()))
-	}, [options, inputValue])
+		return options.filter((o) => !selected.includes(o.value)).filter((o) => o.label.toLowerCase().includes(inputValue?.toLowerCase() ?? ''))
+	}, [options, inputValue, selected])
 
 	useEffect(() => {
 		if (!open && inputValue && !options.find((o) => o.label === inputValue)) {
@@ -43,10 +44,25 @@ export function Select({ name, options, placeholder, className, ...props }: Sele
 			name={name}
 			render={({ field: { value, onChange }, fieldState: { error } }) => {
 				function handleSelect(v: string) {
-					setOpen(false)
-					onChange(v)
-					setValue(`${name}-search-input`, options.find((o) => o.value === v)?.label)
+					if (multiple) {
+						const currentValues = Array.isArray(value) ? value : []
+						const newValue = [...currentValues, v]
+						onChange(newValue)
+					} else {
+						onChange([v])
+						setOpen(false)
+					}
 					clearErrors(`${name}`)
+				}
+
+				function handleDeselect(v: string) {
+					if (multiple) {
+						const currentValues = Array.isArray(value) ? value : []
+						const newValue = currentValues.filter((val) => val !== v)
+						onChange(newValue)
+					} else {
+						onChange([])
+					}
 				}
 
 				return (
@@ -66,27 +82,54 @@ export function Select({ name, options, placeholder, className, ...props }: Sele
 								<View className="h-screen w-screen flex-1 items-center justify-center px-4">
 									<Pressable className="absolute h-screen w-screen flex-1 bg-[#000000aa]" onPress={() => setOpen(false)} />
 									<View className="w-full max-w-md gap-3 rounded-lg bg-gray-700 p-6">
-										<Typography variant="heading-sm">Selecione uma opção</Typography>
-										<Input name={`${name}-search-input`} placeholder={placeholder} />
+										<Typography variant="heading-sm">{multiple ? 'Selecione uma ou mais opções' : 'Selecione uma opção'}</Typography>
+										<Input name={`${name}-search-input`} placeholder="Busque na lista" />
+										<Typography variant="heading-sm">Lista:</Typography>
 										<View className="mt-2 max-h-[160px] rounded-[10px] border border-gray-600 bg-gray-600 py-1">
 											<FlatList
 												data={filtered}
 												keyExtractor={(item) => item.value}
-												contentContainerClassName=""
 												renderItem={({ item }) => (
 													<TouchableOpacity
 														key={item.value}
 														activeOpacity={0.7}
 														onPress={() => handleSelect(item.value)}
-														className="px-4 py-1.5 hover:bg-gray-500 active:bg-gray-500"
+														className="flex-1 flex-row items-center gap-3 px-4 py-1.5 hover:bg-gray-500 active:bg-gray-500"
 													>
-														{item.customRender ? item.customRender : <Typography variant="label-md">{item.label}</Typography>}
+														<View className="h-8 w-8 items-center justify-center rounded-full bg-gray-500">
+															<Typography variant="heading-sm" className="text-[11px]">
+																UN
+															</Typography>
+														</View>
+														<Typography variant="label-md" className="flex-1">
+															{item.label}
+														</Typography>
 													</TouchableOpacity>
 												)}
 												ListEmptyComponent={() => (
 													<Typography variant="label-md" className="px-4 py-1 text-gray-300">
 														Nenhuma opção encontrada
 													</Typography>
+												)}
+											/>
+										</View>
+										<View className="max-h-[160px] gap-2">
+											{value && value.length > 0 && (
+												<Typography variant="label-md">{value.length > 1 ? 'Opções selecionadas' : 'Opção selecionada'}</Typography>
+											)}
+											<FlatList
+												data={value}
+												keyExtractor={(item) => item.value}
+												contentContainerClassName="gap-3"
+												renderItem={({ item }) => (
+													<View className="flex-1 flex-row items-center gap-3 px-4 py-1.5">
+														<Typography variant="label-md" className="flex-1">
+															{options.find((o) => o.value === item)?.label}
+														</Typography>
+														<TouchableOpacity activeOpacity={0.7} onPress={() => handleDeselect(item)}>
+															<Icon name="recycle-bin-2" className="h-6 w-6 text-danger-light" />
+														</TouchableOpacity>
+													</View>
 												)}
 											/>
 										</View>

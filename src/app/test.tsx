@@ -83,14 +83,15 @@ export default function TestPage() {
 										<Select
 											name="select"
 											placeholder="Select an option"
+											multiple
 											options={[
-												{ value: 'pending', label: 'Pendente' },
-												{ value: 'partial', label: 'Parcial' },
-												{ value: 'paid', label: 'Pago' },
-												{ value: 'partial2', label: 'Parcial2' },
-												{ value: 'paid2', label: 'Pago2' },
-												{ value: 'partial3', label: 'Parcial3' },
-												{ value: 'paid3', label: 'Pago3' },
+												{ value: '1', label: 'Matheus Limão Brites' },
+												{ value: '2', label: 'Rebeka Souza Limão Brites' },
+												{ value: '3', label: 'Wilson Brites' },
+												{ value: '4', label: 'Maria Inês' },
+												{ value: '5', label: 'Fernanda' },
+												{ value: '6', label: 'Ryan' },
+												{ value: '7', label: 'Joelinda' },
 											]}
 										/>
 										<Typography variant="text-sm">Selected: {form.watch('select')}</Typography>
