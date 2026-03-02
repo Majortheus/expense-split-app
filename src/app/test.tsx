@@ -16,8 +16,8 @@ export default function TestPage() {
 	return (
 		<Page>
 			<FormProvider {...form}>
-				<View className="flex-1 px-4 py-8">
-					<KeyboardScroll>
+				<KeyboardScroll>
+					<View className="flex-1 px-8 py-8">
 						<Typography variant="heading-lg">Página de Components do Figma</Typography>
 
 						<View className="mt-4">
@@ -82,7 +82,7 @@ export default function TestPage() {
 									<View className="flex-col items-center gap-4">
 										<Select
 											name="select"
-											placeholder="Select an option"
+											placeholder="Selecionar participantes"
 											multiple
 											options={[
 												{ value: '1', label: 'Matheus Limão Brites' },
@@ -94,7 +94,7 @@ export default function TestPage() {
 												{ value: '7', label: 'Joelinda' },
 											]}
 										/>
-										<Typography variant="text-sm">Selected: {form.watch('select')}</Typography>
+										<Typography variant="text-sm">Selected values: {form.watch('select')?.join(', ')}</Typography>
 									</View>
 								</View>
 							</View>
@@ -104,8 +104,8 @@ export default function TestPage() {
 								<Typography>Voltar para Home</Typography>
 							</Link>
 						</View>
-					</KeyboardScroll>
-				</View>
+					</View>
+				</KeyboardScroll>
 			</FormProvider>
 		</Page>
 	)
