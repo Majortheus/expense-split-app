@@ -4,7 +4,7 @@
 // do not have access to the DOM or browser APIs.
 export default function Root({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="pt-BR">
 			<head>
 				<meta charSet="utf-8" />
 				<meta httpEquiv="X-UA-Compatible" content="IE=edge" />

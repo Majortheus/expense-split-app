@@ -7,15 +7,13 @@ import { StatusBar } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
+import * as SystemUI from 'expo-system-ui'
 import { FontGuard } from '@/guards/font-guard'
+import { AuthProvider } from '@/hooks/use-auth'
 import { BottomSheetProvider, useBottomSheet } from '@/hooks/use-bottom-sheets'
 import { queryClient } from '@/libs/react-query'
 
 export { ErrorBoundary } from 'expo-router'
-
-export const unstable_settings = {
-	initialRouteName: 'index',
-}
 
 export default function RootLayout() {
 	return (
@@ -25,8 +23,10 @@ export default function RootLayout() {
 					<StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 					<KeyboardProvider preload>
 						<BottomSheetProvider>
-							<RootLayoutNav />
-							<Toasts overrideDarkMode={true} />
+							<AuthProvider>
+								<RootLayoutNav />
+								<Toasts overrideDarkMode={true} />
+							</AuthProvider>
 						</BottomSheetProvider>
 					</KeyboardProvider>
 				</QueryClientProvider>
@@ -37,15 +37,18 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
 	const { isBottomSheetOpen } = useBottomSheet()
+	SystemUI.setBackgroundColorAsync('#0b0b0e')
 
 	return (
 		<Stack
 			screenOptions={{
 				headerShown: false,
-				contentStyle: { overflow: isBottomSheetOpen ? 'hidden' : 'visible' },
+				contentStyle: { backgroundColor: '#0b0b0e', overflow: isBottomSheetOpen ? 'hidden' : 'visible' },
 			}}
 		>
 			<Stack.Screen name="index" />
+			<Stack.Screen name="(auth)/signin" />
+			<Stack.Screen name="(auth)/signup" />
 		</Stack>
 	)
 }

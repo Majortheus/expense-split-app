@@ -36,7 +36,7 @@ export function Button({ children, startIconName, endIconName, variant = 'primar
 			accessibilityRole="button"
 			activeOpacity={0.7}
 			className={twMerge(
-				'flex-row items-center justify-center gap-2',
+				'w-full flex-row items-center justify-center gap-2',
 				sizeClasses,
 				variantClasses,
 				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',

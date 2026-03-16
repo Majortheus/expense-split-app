@@ -6,9 +6,9 @@ export function KeyboardScroll({ children, ...rest }: Props) {
 	return (
 		<KeyboardAwareScrollView
 			keyboardShouldPersistTaps={'never'}
-			bottomOffset={50}
+			bottomOffset={20}
 			contentContainerStyle={[{ flexGrow: 1 }, rest.contentContainerStyle]}
-			extraKeyboardSpace={50}
+			extraKeyboardSpace={20}
 			{...rest}
 		>
 			{children}

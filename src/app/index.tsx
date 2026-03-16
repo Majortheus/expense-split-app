@@ -1,15 +1,12 @@
-import { Link } from 'expo-router'
-import { Text, View } from 'react-native'
-import { Page } from '@/components/page/page'
+import { Redirect } from 'expo-router'
+import { useAuth } from '@/hooks/use-auth'
 
-export default function Home() {
-	return (
-		<Page>
-			<View className="flex-1 items-center justify-center">
-				<Link href="/test">
-					<Text className="text-gray-100">Abrir página de testes</Text>
-				</Link>
-			</View>
-		</Page>
-	)
+export default function IndexRedirect() {
+	const { user } = useAuth()
+
+	if (user) {
+		return <Redirect href="/(app)/home" />
+	}
+
+	return <Redirect href="/(auth)/signin" />
 }
