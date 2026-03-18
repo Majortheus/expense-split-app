@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router'
+import { type Href, useRouter } from 'expo-router'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -8,7 +8,11 @@ import { Input } from '@/components/input'
 import { KeyboardScroll } from '@/components/keyboard-aware-scroll'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
+import { useAuth } from '@/hooks/use-auth'
 import { setTokenToStorage } from '@/services/storage/token-storage'
+
+const HOME_ROUTE = '/home' as Href
+const SIGNUP_ROUTE = '/signup' as Href
 
 type SignInForm = {
 	email: string
@@ -17,6 +21,7 @@ type SignInForm = {
 
 export default function SignInScreen() {
 	const router = useRouter()
+	const { setUser } = useAuth()
 	const methods = useForm<SignInForm>({
 		defaultValues: { email: '', password: '' },
 	})
@@ -32,7 +37,8 @@ export default function SignInScreen() {
 
 			if (values.email === validEmail && values.password === validPassword) {
 				await setTokenToStorage({ accessToken: 'dev-token' })
-				router.replace('/(app)/home')
+				setUser({ email: values.email })
+				router.replace(HOME_ROUTE)
 			} else {
 				setError('password', { message: 'Credenciais inválidas' })
 				setError('email', { message: ' ' }, { shouldFocus: false })
@@ -63,7 +69,7 @@ export default function SignInScreen() {
 									<Input
 										name="email"
 										iconName="mail-send-envelope"
-										placeholder="Email"
+										placeholder="E-mail"
 										keyboardType="email-address"
 										autoComplete="email"
 										textContentType="emailAddress"
@@ -81,8 +87,8 @@ export default function SignInScreen() {
 										Ainda não tem cadastro?
 									</Typography>
 								</View>
-								<View className="items-center">
-									<Button variant="secondary" onPress={() => router.replace('/(auth)/signup')}>
+								<View className="w-full">
+									<Button variant="secondary" onPress={() => router.replace(SIGNUP_ROUTE)}>
 										Criar conta
 									</Button>
 								</View>

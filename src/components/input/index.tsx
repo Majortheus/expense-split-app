@@ -47,7 +47,7 @@ export function Input({ name, className, iconName, ...props }: InputProps) {
 									props.onBlur?.(e)
 									onBlur()
 								}}
-								className={twMerge('flex-1 py-3 text-gray-200 outline-0 placeholder:text-gray-400')}
+								className={twMerge('flex-1 py-3 font-normal text-base text-gray-200 outline-0 placeholder:text-gray-400')}
 								onChangeText={onChange}
 								value={value}
 								{...props}

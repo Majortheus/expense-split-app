@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router'
+import { type Href, useRouter } from 'expo-router'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -8,17 +8,23 @@ import { Input } from '@/components/input'
 import { KeyboardScroll } from '@/components/keyboard-aware-scroll'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
+import { useAuth } from '@/hooks/use-auth'
 import { setTokenToStorage } from '@/services/storage/token-storage'
 
+const HOME_ROUTE = '/home' as Href
+const SIGNIN_ROUTE = '/signin' as Href
+
 type SignUpForm = {
+	name: string
 	email: string
 	password: string
 }
 
 export default function SignUpScreen() {
 	const router = useRouter()
+	const { setUser } = useAuth()
 	const methods = useForm<SignUpForm>({
-		defaultValues: { email: '', password: '' },
+		defaultValues: { name: '', email: '', password: '' },
 	})
 	const { handleSubmit, setError } = methods
 	const [loading, setLoading] = useState(false)
@@ -27,13 +33,25 @@ export default function SignUpScreen() {
 		setLoading(true)
 		setTimeout(async () => {
 			setLoading(false)
-			if (!values.email || !values.password || values.password.length < 8) {
+
+			if (!values.name.trim()) {
+				setError('name', { message: 'Nome é obrigatório' })
+				return
+			}
+
+			if (!values.email.trim()) {
+				setError('email', { message: 'E-mail é obrigatório' })
+				return
+			}
+
+			if (!values.password || values.password.length < 8) {
 				setError('password', { message: 'Senha deve ter ao menos 8 caracteres' })
 				return
 			}
 
 			await setTokenToStorage({ accessToken: 'dev-token' })
-			router.replace('/')
+			setUser({ email: values.email })
+			router.replace(HOME_ROUTE)
 		}, 800)
 	}
 
@@ -57,25 +75,19 @@ export default function SignUpScreen() {
 
 							<FormProvider {...methods}>
 								<View className="gap-3">
+									<Input name="name" iconName="user-circle-single" placeholder="Nome" autoComplete="name" textContentType="name" />
 									<Input
 										name="email"
 										iconName="mail-send-envelope"
-										placeholder="Email"
+										placeholder="E-mail"
 										keyboardType="email-address"
 										autoComplete="email"
 										textContentType="emailAddress"
 									/>
-									<Input
-										name="password"
-										iconName="asterisk-1"
-										placeholder="Senha (mín. 8 caracteres)"
-										secureTextEntry
-										autoComplete="password"
-										textContentType="password"
-									/>
+									<Input name="password" iconName="asterisk-1" placeholder="Senha" secureTextEntry autoComplete="password" textContentType="password" />
 								</View>
 								<Button variant="primary" onPress={handleSubmit(onSubmit)} disabled={loading}>
-									{loading ? 'Criando conta...' : 'Criar conta'}
+									{loading ? 'Cadastrando...' : 'Cadastrar'}
 								</Button>
 							</FormProvider>
 
@@ -86,9 +98,9 @@ export default function SignUpScreen() {
 									</Typography>
 								</View>
 
-								<View className="items-center">
-									<Button variant="secondary" onPress={() => router.replace('/(auth)/signin')}>
-										Entrar
+								<View className="w-full">
+									<Button variant="secondary" onPress={() => router.replace(SIGNIN_ROUTE)}>
+										Entrar na conta
 									</Button>
 								</View>
 							</View>

@@ -7,7 +7,6 @@ import { StatusBar } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
-import * as SystemUI from 'expo-system-ui'
 import { FontGuard } from '@/guards/font-guard'
 import { AuthProvider } from '@/hooks/use-auth'
 import { BottomSheetProvider, useBottomSheet } from '@/hooks/use-bottom-sheets'
@@ -15,12 +14,20 @@ import { queryClient } from '@/libs/react-query'
 
 export { ErrorBoundary } from 'expo-router'
 
+const SystemUI = (() => {
+	try {
+		return require('expo-system-ui') as { setBackgroundColorAsync?: (color: string) => Promise<void> }
+	} catch {
+		return null
+	}
+})()
+
 export default function RootLayout() {
 	return (
 		<FontGuard>
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<QueryClientProvider client={queryClient}>
-					<StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+					<StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 					<KeyboardProvider preload>
 						<BottomSheetProvider>
 							<AuthProvider>
@@ -37,7 +44,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
 	const { isBottomSheetOpen } = useBottomSheet()
-	SystemUI.setBackgroundColorAsync('#0b0b0e')
+	SystemUI?.setBackgroundColorAsync?.('#0b0b0e')
 
 	return (
 		<Stack
