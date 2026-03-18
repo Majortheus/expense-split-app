@@ -35,13 +35,13 @@ export default function SignInScreen() {
 		setIsLoading(true)
 		setTimeout(async () => {
 			setIsLoading(false)
-			const validEmail = 'demo@demo.com'
-			const validPassword = 'Password123'
+			const validEmail = 'a@a.com'
+			const validPassword = '123'
 
 			if (values.email === validEmail && values.password === validPassword) {
 				await setTokenToStorage({ accessToken: 'dev-token' })
 				setUser({ email: values.email })
-				router.replace('/home')
+				router.replace({ pathname: '/activities/index' })
 			} else {
 				toast.error('Credenciais inválidas')
 			}

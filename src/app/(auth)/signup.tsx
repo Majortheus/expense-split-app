@@ -40,7 +40,7 @@ export default function SignUpScreen() {
 			try {
 				await setTokenToStorage({ accessToken: 'dev-token' })
 				setUser({ email: values.email })
-				router.replace('/home')
+				router.replace({ pathname: '/activities/index' })
 			} catch {
 				toast.error('Não foi possível criar sua conta')
 			}

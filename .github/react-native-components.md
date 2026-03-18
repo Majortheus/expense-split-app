@@ -41,6 +41,15 @@ Button guidelines (summary)
 - Use `Typography` for label text.
 - Use theme classes (above) for backgrounds, borders and text colors.
 - Provide `iconOnly` mode; ensure `accessibilityLabel` is recommended.
+- Current behavior: buttons with label render full width; icon-only buttons collapse to a 48x48 circle automatically, which is the expected pattern for toolbar and sheet actions.
+
+Expense Split screen primitives
+- `ScreenFrame` (`src/components/screen-frame/index.tsx`) wraps app screens in a centered mobile-width shell that still expands correctly on native devices and on web.
+- `AppBottomNav` (`src/components/app-bottom-nav/index.tsx`) owns the 3-tab bottom navigation for `Atividades`, `Resumo`, and `Participantes`, including the active solid icons.
+- `AppLogo` (`src/components/app-logo/index.tsx`) standardizes the brand lockup in small and large variants for list/detail screens and auth screens.
+- `Avatar` and `AvatarStack` (`src/components/avatar/index.tsx`, `src/components/avatar-stack/index.tsx`) are the shared participant primitives for initials pills and overlapping participant groups.
+- `EmptyState` (`src/components/empty-state/index.tsx`) centralizes the empty-state layout used by the list and summary screens.
+- `ModalSheet` (`src/components/modal-sheet/index.tsx`) is the shared bottom-sheet style modal used by activity and expense forms.
 
 Examples
 - Show concrete examples and usage snippets here for future reference (stories or code samples). Update this file when adding new variants.
@@ -49,4 +58,3 @@ Checklist for component changes
 - [ ] Add component under `src/components/` with named export.
 - [ ] Update this `.github/react-native-components.md` with the rationale and examples.
 - [ ] Run `npm run format` and `npm run lint` and address style/lint issues.
-

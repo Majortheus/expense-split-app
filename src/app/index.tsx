@@ -5,7 +5,7 @@ export default function IndexRedirect() {
 	const { user } = useAuth()
 
 	if (user) {
-		return <Redirect href="/home" />
+		return <Redirect href={{ pathname: '/activities/index' }} />
 	}
 
 	return <Redirect href="/signin" />

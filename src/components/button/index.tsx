@@ -19,8 +19,8 @@ export function Button({ children, startIconName, endIconName, isLoading = false
 	const isDisabled = disabled || isLoading
 
 	const sizeClasses = clsx({
-		'px-4 py-3 rounded-full': !isIconOnly,
-		'p-3 rounded-full': isIconOnly,
+		'min-h-12 px-4 py-3 rounded-full w-full': !isIconOnly,
+		'h-12 w-12 rounded-full': isIconOnly,
 	})
 
 	const variantClasses = clsx({
@@ -40,7 +40,7 @@ export function Button({ children, startIconName, endIconName, isLoading = false
 			accessibilityState={{ disabled: isDisabled }}
 			activeOpacity={0.7}
 			className={twMerge(
-				'w-full flex-row items-center justify-center gap-2',
+				'flex-row items-center justify-center gap-2',
 				sizeClasses,
 				variantClasses,
 				isDisabled ? 'opacity-85' : '',
