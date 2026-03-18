@@ -1,11 +1,9 @@
-import { type Href, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { View } from 'react-native'
 import { Button } from '@/components/button'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
 import { useAuth } from '@/hooks/use-auth'
-
-const SIGNIN_ROUTE = '/signin' as Href
 
 export default function Home() {
 	const { signOut } = useAuth()
@@ -13,7 +11,7 @@ export default function Home() {
 
 	const handleSignOut = async () => {
 		await signOut()
-		router.replace(SIGNIN_ROUTE)
+		router.replace('/signin')
 	}
 
 	return (

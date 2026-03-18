@@ -1,6 +1,16 @@
 import { Keyboard, Platform, Pressable, View } from 'react-native'
 
 export function Page({ children }: { children?: React.ReactNode }) {
+	if (Platform.OS === 'web') {
+		return (
+			<View className="w-full flex-1">
+				<View className="flex-1 items-center bg-gray-800 text-gray-100">
+					<SafeArea>{children}</SafeArea>
+				</View>
+			</View>
+		)
+	}
+
 	return (
 		<Pressable onPress={() => Keyboard.dismiss()} className="w-full flex-1">
 			<View className="flex-1 items-center bg-gray-800 text-gray-100">

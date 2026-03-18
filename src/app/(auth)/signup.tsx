@@ -1,7 +1,10 @@
-import { type Href, useRouter } from 'expo-router'
+import { toast } from '@backpackapp-io/react-native-toast'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { z } from 'zod'
 import Logo from '@/assets/logo.svg'
 import { Button } from '@/components/button'
 import { Input } from '@/components/input'
@@ -11,47 +14,36 @@ import { Typography } from '@/components/typography'
 import { useAuth } from '@/hooks/use-auth'
 import { setTokenToStorage } from '@/services/storage/token-storage'
 
-const HOME_ROUTE = '/home' as Href
-const SIGNIN_ROUTE = '/signin' as Href
+const signUpSchema = z.object({
+	name: z.string().trim().min(1, 'Nome é obrigatório'),
+	email: z.string().trim().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
+	password: z.string().min(1, 'Senha é obrigatória').min(8, 'Senha deve ter ao menos 8 caracteres'),
+})
 
-type SignUpForm = {
-	name: string
-	email: string
-	password: string
-}
+type SignUpFormData = z.infer<typeof signUpSchema>
 
 export default function SignUpScreen() {
 	const router = useRouter()
 	const { setUser } = useAuth()
-	const methods = useForm<SignUpForm>({
+	const methods = useForm<SignUpFormData>({
 		defaultValues: { name: '', email: '', password: '' },
+		resolver: zodResolver(signUpSchema),
 	})
-	const { handleSubmit, setError } = methods
-	const [loading, setLoading] = useState(false)
+	const { handleSubmit } = methods
+	const [isLoading, setIsLoading] = useState(false)
 
-	const onSubmit = async (values: SignUpForm) => {
-		setLoading(true)
+	const onSubmit = async (values: SignUpFormData) => {
+		setIsLoading(true)
 		setTimeout(async () => {
-			setLoading(false)
+			setIsLoading(false)
 
-			if (!values.name.trim()) {
-				setError('name', { message: 'Nome é obrigatório' })
-				return
+			try {
+				await setTokenToStorage({ accessToken: 'dev-token' })
+				setUser({ email: values.email })
+				router.replace('/home')
+			} catch {
+				toast.error('Não foi possível criar sua conta')
 			}
-
-			if (!values.email.trim()) {
-				setError('email', { message: 'E-mail é obrigatório' })
-				return
-			}
-
-			if (!values.password || values.password.length < 8) {
-				setError('password', { message: 'Senha deve ter ao menos 8 caracteres' })
-				return
-			}
-
-			await setTokenToStorage({ accessToken: 'dev-token' })
-			setUser({ email: values.email })
-			router.replace(HOME_ROUTE)
 		}, 800)
 	}
 
@@ -75,7 +67,7 @@ export default function SignUpScreen() {
 
 							<FormProvider {...methods}>
 								<View className="gap-3">
-									<Input name="name" iconName="user-circle-single" placeholder="Nome" autoComplete="name" textContentType="name" />
+									<Input name="name" iconName="user-circle-single" placeholder="Nome" autoComplete="name" textContentType="name" autoCapitalize="words" />
 									<Input
 										name="email"
 										iconName="mail-send-envelope"
@@ -86,8 +78,8 @@ export default function SignUpScreen() {
 									/>
 									<Input name="password" iconName="asterisk-1" placeholder="Senha" secureTextEntry autoComplete="password" textContentType="password" />
 								</View>
-								<Button variant="primary" onPress={handleSubmit(onSubmit)} disabled={loading}>
-									{loading ? 'Cadastrando...' : 'Cadastrar'}
+								<Button variant="primary" isLoading={isLoading} onPress={handleSubmit(onSubmit)}>
+									{isLoading ? 'Cadastrando...' : 'Cadastrar'}
 								</Button>
 							</FormProvider>
 
@@ -99,7 +91,7 @@ export default function SignUpScreen() {
 								</View>
 
 								<View className="w-full">
-									<Button variant="secondary" onPress={() => router.replace(SIGNIN_ROUTE)}>
+									<Button variant="secondary" onPress={() => router.replace('/signin')}>
 										Entrar na conta
 									</Button>
 								</View>

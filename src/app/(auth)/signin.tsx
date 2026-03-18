@@ -1,7 +1,10 @@
-import { type Href, useRouter } from 'expo-router'
+import { toast } from '@backpackapp-io/react-native-toast'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { z } from 'zod'
 import Logo from '@/assets/logo.svg'
 import { Button } from '@/components/button'
 import { Input } from '@/components/input'
@@ -11,37 +14,36 @@ import { Typography } from '@/components/typography'
 import { useAuth } from '@/hooks/use-auth'
 import { setTokenToStorage } from '@/services/storage/token-storage'
 
-const HOME_ROUTE = '/home' as Href
-const SIGNUP_ROUTE = '/signup' as Href
+const signInSchema = z.object({
+	email: z.string().trim().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
+	password: z.string().min(1, 'Senha é obrigatória'),
+})
 
-type SignInForm = {
-	email: string
-	password: string
-}
+type SignInFormData = z.infer<typeof signInSchema>
 
 export default function SignInScreen() {
 	const router = useRouter()
 	const { setUser } = useAuth()
-	const methods = useForm<SignInForm>({
+	const methods = useForm<SignInFormData>({
 		defaultValues: { email: '', password: '' },
+		resolver: zodResolver(signInSchema),
 	})
-	const { handleSubmit, setError } = methods
-	const [loading, setLoading] = useState(false)
+	const { handleSubmit } = methods
+	const [isLoading, setIsLoading] = useState(false)
 
-	const onSubmit = async (values: SignInForm) => {
-		setLoading(true)
+	const onSubmit = async (values: SignInFormData) => {
+		setIsLoading(true)
 		setTimeout(async () => {
-			setLoading(false)
+			setIsLoading(false)
 			const validEmail = 'demo@demo.com'
 			const validPassword = 'Password123'
 
 			if (values.email === validEmail && values.password === validPassword) {
 				await setTokenToStorage({ accessToken: 'dev-token' })
 				setUser({ email: values.email })
-				router.replace(HOME_ROUTE)
+				router.replace('/home')
 			} else {
-				setError('password', { message: 'Credenciais inválidas' })
-				setError('email', { message: ' ' }, { shouldFocus: false })
+				toast.error('Credenciais inválidas')
 			}
 		}, 800)
 	}
@@ -76,8 +78,8 @@ export default function SignInScreen() {
 									/>
 									<Input name="password" iconName="asterisk-1" placeholder="Senha" secureTextEntry autoComplete="password" textContentType="password" />
 								</View>
-								<Button variant="primary" onPress={handleSubmit(onSubmit)} disabled={loading}>
-									{loading ? 'Entrando...' : 'Entrar'}
+								<Button variant="primary" isLoading={isLoading} onPress={handleSubmit(onSubmit)}>
+									{isLoading ? 'Entrando...' : 'Entrar'}
 								</Button>
 							</FormProvider>
 
@@ -88,7 +90,7 @@ export default function SignInScreen() {
 									</Typography>
 								</View>
 								<View className="w-full">
-									<Button variant="secondary" onPress={() => router.replace(SIGNUP_ROUTE)}>
+									<Button variant="secondary" onPress={() => router.replace('/signup')}>
 										Criar conta
 									</Button>
 								</View>

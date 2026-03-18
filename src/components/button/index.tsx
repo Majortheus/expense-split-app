@@ -4,16 +4,19 @@ import { TouchableOpacity } from 'react-native'
 import { twMerge } from 'tailwind-merge'
 import { Typography } from '@/components/typography'
 import { Icon, type IconNames } from '../icon'
+import { Spinner } from '../spinner'
 
 export interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
 	children?: React.ReactNode
 	startIconName?: IconNames
 	endIconName?: IconNames
+	isLoading?: boolean
 	variant?: 'primary' | 'secondary' | 'danger'
 }
 
-export function Button({ children, startIconName, endIconName, variant = 'primary', className, ...props }: ButtonProps) {
+export function Button({ children, startIconName, endIconName, isLoading = false, variant = 'primary', className, disabled, ...props }: ButtonProps) {
 	const isIconOnly = !children
+	const isDisabled = disabled || isLoading
 
 	const sizeClasses = clsx({
 		'px-4 py-3 rounded-full': !isIconOnly,
@@ -34,17 +37,20 @@ export function Button({ children, startIconName, endIconName, variant = 'primar
 	return (
 		<TouchableOpacity
 			accessibilityRole="button"
+			accessibilityState={{ disabled: isDisabled }}
 			activeOpacity={0.7}
 			className={twMerge(
 				'w-full flex-row items-center justify-center gap-2',
 				sizeClasses,
 				variantClasses,
+				isDisabled ? 'opacity-85' : '',
 				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 				className,
 			)}
+			disabled={isDisabled}
 			{...props}
 		>
-			{startIconName && <Icon name={startIconName} className={twMerge('h-6 w-6', textColor)} />}
+			{isLoading ? <Spinner variant={variant} /> : startIconName && <Icon name={startIconName} className={twMerge('h-6 w-6', textColor)} />}
 
 			{children && (
 				<Typography variant="label-md" className={textColor}>
