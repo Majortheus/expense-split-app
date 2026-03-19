@@ -22,7 +22,7 @@ export function Avatar({ label, size = 'md', className }: AvatarProps) {
 				className,
 			)}
 		>
-			<Typography variant="heading-sm" className={clsx(size === 'sm' ? 'text-[10px]' : 'text-[11px]')}>
+			<Typography variant="heading-sm" className={twMerge('text-[11px]', clsx({ 'text-[10px]': size === 'sm' }))}>
 				{label}
 			</Typography>
 		</View>

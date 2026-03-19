@@ -1,69 +1,68 @@
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import clsx from 'clsx'
 import { Tabs } from 'expo-router'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
+import { twMerge } from 'tailwind-merge'
 import { Icon } from '@/components/icon'
-import { Page } from '@/components/page/page'
+import { SafeAreaView } from '@/components/safe-area-view'
 import { Typography } from '@/components/typography'
 
-export default function AppLayout() {
+type AppTabRoute = 'activities' | 'summary' | 'participants'
+
+export default function Layout() {
 	return (
-		<Page>
-			<Tabs
-				screenOptions={{
-					headerShown: false,
-					sceneStyle: { backgroundColor: 'transparent' },
-					tabBarStyle: {
-						backgroundColor: '#0b0b0e',
-						borderTopColor: 'rgba(255,255,255,0.1)',
-						height: 80,
-						paddingTop: 10,
-						paddingBottom: 12,
-					},
-					tabBarShowLabel: false,
-				}}
-			>
-				<Tabs.Screen
-					name="activities/index"
-					options={{
-						href: '/activities',
-						tabBarIcon: ({ focused }) => <TabBarItem focused={focused} icon={focused ? 'bullet-list-solid' : 'bullet-list'} label="Atividades" />,
-					}}
-				/>
-				<Tabs.Screen
-					name="participants"
-					options={{
-						tabBarIcon: ({ focused }) => (
-							<TabBarItem focused={focused} icon={focused ? 'user-multiple-group-solid' : 'user-multiple-group'} label="Participantes" />
-						),
-					}}
-				/>
-				<Tabs.Screen
-					name="summary"
-					options={{
-						tabBarIcon: ({ focused }) => <TabBarItem focused={focused} icon={focused ? 'pie-chart-solid' : 'pie-chart'} label="Resumo" />,
-					}}
-				/>
-				<Tabs.Screen name="activities/[activityId]" options={{ href: null }} />
-				<Tabs.Screen name="expenses/[expenseId]" options={{ href: null }} />
-			</Tabs>
-		</Page>
+		<Tabs screenOptions={{ headerShown: false }} tabBar={TabBar}>
+			<Tabs.Screen name="activities" options={{ title: 'Atividades' }} />
+			<Tabs.Screen name="summary" options={{ title: 'Resumo' }} />
+			<Tabs.Screen name="participants" options={{ title: 'Participantes' }} />
+		</Tabs>
 	)
 }
 
-function TabBarItem({
-	focused,
-	icon,
-	label,
-}: {
-	focused: boolean
-	icon: 'bullet-list' | 'bullet-list-solid' | 'pie-chart' | 'pie-chart-solid' | 'user-multiple-group' | 'user-multiple-group-solid'
-	label: string
-}) {
+function TabBar({ descriptors }: BottomTabBarProps) {
 	return (
-		<View className="items-center gap-2">
-			<Icon name={icon} className={focused ? 'h-6 w-6 text-gray-100' : 'h-6 w-6 text-gray-400'} />
-			<Typography variant="text-xs" className={focused ? 'text-gray-100' : 'text-gray-400'}>
-				{label}
+		<SafeAreaView edges={['bottom']} className="bg-gray-700">
+			<View className="items-center justify-between border-gray-800 border-t bg-gray-700 px-6 py-5">
+				<View className="w-full max-w-5xl flex-row gap-4">
+					{Object.entries(descriptors).map(([key, descriptor]) => (
+						<Tab key={key} descriptor={descriptor} />
+					))}
+				</View>
+			</View>
+		</SafeAreaView>
+	)
+}
+
+const TAB_CONFIG = {
+	activities: {
+		icon: 'bullet-list',
+		activeIcon: 'bullet-list-solid',
+	},
+	summary: {
+		icon: 'pie-chart',
+		activeIcon: 'pie-chart-solid',
+	},
+	participants: {
+		icon: 'user-multiple-group',
+		activeIcon: 'user-multiple-group-solid',
+	},
+} as const
+
+function Tab({ descriptor }: { descriptor: BottomTabBarProps['descriptors'][string] }) {
+	const config = TAB_CONFIG[descriptor.route.name as AppTabRoute]
+	const isFocused = descriptor.navigation.isFocused()
+
+	return (
+		<Pressable
+			className="flex-1 items-center gap-3 py-0.5"
+			onPress={() => {
+				descriptor.navigation.navigate(descriptor.route.name, descriptor.route.params)
+			}}
+		>
+			<Icon name={isFocused ? config.activeIcon : config.icon} className={twMerge('h-6 w-6 text-gray-400', clsx({ 'text-green-light': isFocused }))} />
+			<Typography variant={isFocused ? 'label-sm' : 'text-sm'} className={twMerge('text-center text-gray-400', clsx({ 'text-gray-200': isFocused }))}>
+				{descriptor.options.title}
 			</Typography>
-		</View>
+		</Pressable>
 	)
 }

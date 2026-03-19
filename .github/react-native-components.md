@@ -44,9 +44,8 @@ Button guidelines (summary)
 - Current behavior: buttons with label render full width; icon-only buttons collapse to a 48x48 circle automatically, which is the expected pattern for toolbar and sheet actions.
 
 Expense Split screen primitives
-- `ScreenFrame` (`src/components/screen-frame/index.tsx`) wraps app screens in a centered mobile-width shell that still expands correctly on native devices and on web.
-- `AppBottomNav` (`src/components/app-bottom-nav/index.tsx`) owns the 3-tab bottom navigation for `Atividades`, `Resumo`, and `Participantes`, including the active solid icons.
-- `AppLogo` (`src/components/app-logo/index.tsx`) standardizes the brand lockup in small and large variants for list/detail screens and auth screens.
+- The shared app chrome for screens inside `src/app/(app)` lives in `src/app/(app)/_layout.tsx` using Expo Router `Tabs`. Keep the tab bar there instead of recreating it per screen.
+- Reuse `src/assets/logo.svg` directly for brand rendering. Do not wrap it in a helper component unless a new project-wide need appears.
 - `Avatar` and `AvatarStack` (`src/components/avatar/index.tsx`, `src/components/avatar-stack/index.tsx`) are the shared participant primitives for initials pills and overlapping participant groups.
 - `EmptyState` (`src/components/empty-state/index.tsx`) centralizes the empty-state layout used by the list and summary screens.
 - `ModalSheet` (`src/components/modal-sheet/index.tsx`) is the shared bottom-sheet style modal used by activity and expense forms.

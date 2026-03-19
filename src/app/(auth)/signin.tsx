@@ -25,7 +25,7 @@ export default function SignInScreen() {
 	const router = useRouter()
 	const { setUser } = useAuth()
 	const methods = useForm<SignInFormData>({
-		defaultValues: { email: '', password: '' },
+		defaultValues: { email: 'a@a.com', password: '123' },
 		resolver: zodResolver(signInSchema),
 	})
 	const { handleSubmit } = methods
@@ -41,7 +41,7 @@ export default function SignInScreen() {
 			if (values.email === validEmail && values.password === validPassword) {
 				await setTokenToStorage({ accessToken: 'dev-token' })
 				setUser({ email: values.email })
-				router.replace({ pathname: '/activities/index' })
+				router.replace('/activities')
 			} else {
 				toast.error('Credenciais inválidas')
 			}
