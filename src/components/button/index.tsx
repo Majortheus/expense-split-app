@@ -17,9 +17,11 @@ export interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
 export function Button({ children, startIconName, endIconName, isLoading = false, variant = 'primary', className, disabled, ...props }: ButtonProps) {
 	const isIconOnly = !children
 	const isDisabled = disabled || isLoading
+	const hasTextAndStartIcon = !!startIconName && !endIconName && !!children
 
 	const sizeClasses = clsx({
-		'min-h-12 px-4 py-3 rounded-full w-full': !isIconOnly,
+		'w-full min-h-12 px-4 py-3 rounded-full': !isIconOnly && !hasTextAndStartIcon,
+		'min-h-[44px] w-auto rounded-full px-4 py-2.5': hasTextAndStartIcon,
 		'h-12 w-12 rounded-full': isIconOnly,
 	})
 
@@ -41,6 +43,7 @@ export function Button({ children, startIconName, endIconName, isLoading = false
 			activeOpacity={0.7}
 			className={twMerge(
 				'flex-row items-center justify-center gap-2',
+				hasTextAndStartIcon ? 'px-4' : '',
 				sizeClasses,
 				variantClasses,
 				isDisabled ? 'opacity-85' : '',

@@ -1,27 +1,31 @@
-import { useRouter } from 'expo-router'
 import { View } from 'react-native'
+import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { Button } from '@/components/button'
-import { Typography } from '@/components/typography'
-import { useAuth } from '@/hooks/use-auth'
+import { Header } from '@/components/page/header'
+import { Page } from '@/components/page/page'
 
 export default function ActivitiesScreen() {
-	const router = useRouter()
-	const { signOut } = useAuth()
-
-	const handleSignOut = async () => {
-		await signOut()
-		router.replace('/signin')
+	const handleCreatePress = () => {
+		return
 	}
 
 	return (
-		<View className="flex-1 items-center justify-center bg-gray-800 px-6">
-			<Typography variant="heading-lg" className="text-white">
-				Home
-			</Typography>
+		<Page>
+			<View className="w-full flex-1 bg-gray-800 px-6 pt-6 pb-6">
+				<View className="relative w-full flex-1 gap-4">
+					<Header title="Atividades" subtitle="Organize suas despesas divididas" />
 
-			<Button variant="secondary" className="mt-6 max-w-[240px]" onPress={handleSignOut}>
-				Logout / Sign out
-			</Button>
-		</View>
+					<View className="relative flex-1 items-center justify-center">
+						<ActivitiesEmptyState />
+
+						<View className="absolute right-0 bottom-0">
+							<Button startIconName="add-1" onPress={handleCreatePress}>
+								Criar
+							</Button>
+						</View>
+					</View>
+				</View>
+			</View>
+		</Page>
 	)
 }
