@@ -1,16 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { BlurView } from 'expo-blur'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native'
+import { Modal, Pressable, View } from 'react-native'
 import { z } from 'zod'
 import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { Button } from '@/components/button'
+import { DatePickerField } from '@/components/date-picker'
+import { startOfToday } from '@/components/date-picker/utils'
 import { Icon } from '@/components/icon'
 import { Input } from '@/components/input'
 import { Header } from '@/components/page/header'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
+import { formatDateBR } from '@/utils/formatters'
 
 const createActivitySchema = z.object({
 	title: z.string().trim().min(1, 'Título é obrigatório'),
@@ -21,8 +23,10 @@ type CreateActivityFormData = z.infer<typeof createActivitySchema>
 
 export default function ActivitiesScreen() {
 	const [isCreateOpen, setIsCreateOpen] = useState(false)
+	const minimumSelectableDate = useMemo(() => startOfToday(), [])
+
 	const methods = useForm<CreateActivityFormData>({
-		defaultValues: { title: '', date: '' },
+		defaultValues: { title: '', date: formatDateBR(minimumSelectableDate) },
 		resolver: zodResolver(createActivitySchema),
 	})
 	const { handleSubmit, reset } = methods
@@ -54,18 +58,7 @@ export default function ActivitiesScreen() {
 				</View>
 
 				<Modal transparent animationType="fade" visible={isCreateOpen} onRequestClose={closeCreateModal}>
-					<View className="flex-1 items-center justify-center gap-6 px-4">
-						{Platform.OS === 'android' ? (
-							<BlurView
-								blurReductionFactor={20}
-								experimentalBlurMethod="dimezisBlurView"
-								intensity={25}
-								tint="dark"
-								style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 0, 0, 0.4)' }]}
-							/>
-						) : (
-							<BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
-						)}
+					<View className="flex-1 items-center justify-center gap-6 bg-black/50 px-4">
 						<View className="absolute inset-0 bg-black/40" />
 						<Pressable className="absolute inset-0" onPress={closeCreateModal} />
 
@@ -83,7 +76,7 @@ export default function ActivitiesScreen() {
 							<FormProvider {...methods}>
 								<View className="gap-2">
 									<Input name="title" placeholder="Título" />
-									<Input name="date" iconName="blank-calendar" placeholder="Data" />
+									<DatePickerField minimumDate={minimumSelectableDate} name="date" placeholder="Data" />
 								</View>
 
 								<Button className="w-full" onPress={handleSubmit(onSubmit)}>

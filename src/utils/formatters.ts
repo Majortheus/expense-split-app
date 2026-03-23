@@ -1,3 +1,10 @@
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import 'dayjs/locale/pt-br'
+
+dayjs.extend(customParseFormat)
+dayjs.locale('pt-br')
+
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 	style: 'currency',
 	currency: 'BRL',
@@ -17,6 +24,10 @@ export function formatExpenseCount(count: number) {
 
 export function formatParticipantCount(count: number) {
 	return `${count} ${count === 1 ? 'pessoa' : 'pessoas'}`
+}
+
+export function formatDateBR(value: Date) {
+	return dayjs(value).format('DD/MM/YYYY')
 }
 
 export function getInitials(name: string) {
