@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { TextInput, type TextInputProps, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
-import { Icon, type IconNames } from '@/components/icon'
+import { Icon } from '@/components/icon'
+import type { IconNames } from '@/constants/icons'
 import { Typography } from '../typography'
 
 export type InputProps = TextInputProps & {

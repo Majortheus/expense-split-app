@@ -1,7 +1,8 @@
 import { View } from 'react-native'
 import { Button } from '@/components/button'
-import { Icon, type IconNames } from '@/components/icon'
+import { Icon } from '@/components/icon'
 import { Typography } from '@/components/typography'
+import type { IconNames } from '@/constants/icons'
 
 type EmptyStateProps = {
 	iconName: IconNames

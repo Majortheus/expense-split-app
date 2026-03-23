@@ -3,7 +3,8 @@ import type { ComponentProps } from 'react'
 import { TouchableOpacity } from 'react-native'
 import { twMerge } from 'tailwind-merge'
 import { Typography } from '@/components/typography'
-import { Icon, type IconNames } from '../icon'
+import type { IconNames } from '@/constants/icons'
+import { Icon } from '../icon'
 import { Spinner } from '../spinner'
 
 export interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
