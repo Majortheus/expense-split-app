@@ -1,3 +1,6 @@
+import ChevronDown from '@/components/icons/lucide/chevron-down'
+import ChevronLeft from '@/components/icons/lucide/chevron-left'
+import ChevronRight from '@/components/icons/lucide/chevron-right'
 import Add from '@/components/icons/streamline/add-1'
 import Asterisk from '@/components/icons/streamline/asterisk-1'
 import BlankCalendar from '@/components/icons/streamline/blank-calendar'
@@ -34,6 +37,9 @@ export const ICON_MAP = {
 	'user-multiple-group': UserMultiple,
 	'user-multiple-group-solid': UserMultipleSolid,
 	'warning-octagon': WarningOctagon,
+	'chevron-down': ChevronDown,
+	'chevron-left': ChevronLeft,
+	'chevron-right': ChevronRight,
 } as const
 
 export type IconNames = keyof typeof ICON_MAP

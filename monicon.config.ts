@@ -2,8 +2,10 @@ import type { MoniconConfig } from '@monicon/core'
 import { clean, reactNative } from '@monicon/core/plugins'
 
 export default {
-	// Loads individual icons by icon name
 	icons: [
+		'lucide:chevron-down',
+		'lucide:chevron-left',
+		'lucide:chevron-right',
 		'streamline:user-circle-single',
 		'streamline:asterisk-1',
 		'streamline:mail-send-envelope',
@@ -22,15 +24,6 @@ export default {
 		'streamline:recycle-bin-2',
 		'streamline:delete-1',
 	],
-	// Loads all icons from the collection
 	collections: [],
-	plugins: [
-		/**
-		 * change the output path to your project config for example;
-		 * - components/icons
-		 * - src/components/icons
-		 */
-		clean({ patterns: ['src/components/icons'] }),
-		reactNative({ outputPath: 'src/components/icons' }),
-	],
+	plugins: [clean({ patterns: ['src/components/icons'] }), reactNative({ outputPath: 'src/components/icons' })],
 } satisfies MoniconConfig

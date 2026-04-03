@@ -1,9 +1,11 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import utc from 'dayjs/plugin/utc'
 import 'dayjs/locale/pt-br'
 
 dayjs.extend(customParseFormat)
 dayjs.locale('pt-br')
+dayjs.extend(utc)
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 	style: 'currency',
@@ -27,7 +29,7 @@ export function formatParticipantCount(count: number) {
 }
 
 export function formatDateBR(value: Date) {
-	return dayjs(value).format('DD/MM/YYYY')
+	return dayjs(value, { utc: true }).format('DD/MM/YYYY')
 }
 
 export function getInitials(name: string) {

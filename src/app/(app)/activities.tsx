@@ -1,39 +1,39 @@
+import DateTimePicker from '@expo/ui/datetimepicker'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Modal, Pressable, View } from 'react-native'
 import { z } from 'zod'
 import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { Button } from '@/components/button'
-import { DatePickerField } from '@/components/date-picker'
-import { startOfToday } from '@/components/date-picker/utils'
+import { DatePickerInput } from '@/components/date-picker'
 import { Icon } from '@/components/icon'
 import { Input } from '@/components/input'
 import { Header } from '@/components/page/header'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
-import { formatDateBR } from '@/utils/formatters'
 
 const createActivitySchema = z.object({
 	title: z.string().trim().min(1, 'Título é obrigatório'),
-	date: z.string().trim().min(1, 'Data é obrigatória'),
+	date: z.date().min(1, 'Data é obrigatória'),
 })
 
 type CreateActivityFormData = z.infer<typeof createActivitySchema>
 
 export default function ActivitiesScreen() {
 	const [isCreateOpen, setIsCreateOpen] = useState(false)
-	const minimumSelectableDate = useMemo(() => startOfToday(), [])
 
 	const methods = useForm<CreateActivityFormData>({
-		defaultValues: { title: '', date: formatDateBR(minimumSelectableDate) },
+		defaultValues: { title: '', date: new Date() },
 		resolver: zodResolver(createActivitySchema),
 	})
 	const { handleSubmit, reset } = methods
 
 	const closeCreateModal = () => {
 		setIsCreateOpen(false)
-		reset()
+		setTimeout(() => {
+			reset()
+		}, 300)
 	}
 
 	const onSubmit = (_values: CreateActivityFormData) => {
@@ -76,7 +76,7 @@ export default function ActivitiesScreen() {
 							<FormProvider {...methods}>
 								<View className="gap-2">
 									<Input name="title" placeholder="Título" />
-									<DatePickerField minimumDate={minimumSelectableDate} name="date" placeholder="Data" />
+									<DatePickerInput name="date" placeholder="Data" />
 								</View>
 
 								<Button className="w-full" onPress={handleSubmit(onSubmit)}>
