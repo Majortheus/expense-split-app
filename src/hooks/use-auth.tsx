@@ -1,8 +1,10 @@
 import type React from 'react'
-import { createContext, useContext, useState } from 'react'
-import { removeTokenFromStorage } from '@/services/storage/token-storage'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { getUserFromStorage, removeUserFromStorage, setUserToStorage } from '@/services/storage/user-storage'
 
 type User = {
+	id: string
+	name: string
 	email: string
 } | null
 
@@ -17,12 +19,31 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User>(null)
 
+	useEffect(() => {
+		async function loadUser() {
+			const storedUser = await getUserFromStorage()
+			setUser(storedUser)
+		}
+
+		loadUser()
+	}, [])
+
+	async function updateUser(nextUser: User) {
+		setUser(nextUser)
+
+		if (nextUser) {
+			await setUserToStorage(nextUser)
+		} else {
+			await removeUserFromStorage()
+		}
+	}
+
 	async function signOut() {
-		await removeTokenFromStorage()
+		await removeUserFromStorage()
 		setUser(null)
 	}
 
-	return <AuthContext.Provider value={{ user, setUser, signOut }}>{children}</AuthContext.Provider>
+	return <AuthContext.Provider value={{ user, setUser: updateUser, signOut }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

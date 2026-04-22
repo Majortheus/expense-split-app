@@ -1,5 +1,3 @@
-// Minimal BottomSheet provider and hook for layout
-
 import type { ReactNode } from 'react'
 import { createContext, useContext, useState } from 'react'
 

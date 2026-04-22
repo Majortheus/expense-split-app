@@ -4,7 +4,7 @@ import axios, { type AxiosInstance } from 'axios'
 import { env } from '@/envs'
 import { getTokenFromStorage } from '@/services/storage/token-storage'
 
-const baseURL = env.API_URL
+const baseURL = env.EXPO_PUBLIC_API_URL
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL,

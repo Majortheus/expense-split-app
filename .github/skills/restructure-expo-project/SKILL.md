@@ -8,6 +8,7 @@ description: Reorganiza a estrutura de um projeto Expo recém-criado para um pad
 Este documento descreve a estrutura de projeto desejada para um projeto criado pela CLI do Expo, de modo que uma IA (ou script) possa ler estas instruções e reorganizar automaticamente o projeto recém-criado para o padrão preferido.
 
 Note about responsibilities
+
 - Structural refactors and changes to folder layout or global project organization should be recorded in this skill (`.github/skills/restructure-expo-project/SKILL.md`).
 - Do NOT use this skill to document component-level styling or component API conventions — those belong in `.github/react-native-components.md`.
 
@@ -103,14 +104,14 @@ crie tambem uma sistematica aonde use zod para fazer um parse das envs, e gere u
 import { z } from "zod";
 
 const envSchema = z.object({
-  API_URL: z.string().url(),
+  EXPO_PUBLIC_API_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "production", "test"]),
   // Adicione outras variáveis de ambiente necessárias aqui
 });
 
 export const env = envSchema.parse(process.env);
 
-// Agora você pode usar `env.API_URL` e `env.NODE_ENV` com tipagem garantida
+// Agora você pode usar `env.EXPO_PUBLIC_API_URL` e `env.NODE_ENV` com tipagem garantida
 ```
 
 ### `src/@types/`

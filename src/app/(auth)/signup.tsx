@@ -1,7 +1,7 @@
 import { toast } from '@backpackapp-io/react-native-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isAxiosError } from 'axios'
 import { useRouter } from 'expo-router'
-import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { z } from 'zod'
@@ -12,7 +12,7 @@ import { KeyboardScroll } from '@/components/keyboard-aware-scroll'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
 import { useAuth } from '@/hooks/use-auth'
-import { setTokenToStorage } from '@/services/storage/token-storage'
+import { useUserSignUpMutation } from '@/services/query/users'
 
 const signUpSchema = z.object({
 	name: z.string().trim().min(1, 'Nome é obrigatório'),
@@ -25,26 +25,23 @@ type SignUpFormData = z.infer<typeof signUpSchema>
 export default function SignUpScreen() {
 	const router = useRouter()
 	const { setUser } = useAuth()
+	const signUpMutation = useUserSignUpMutation()
+
 	const methods = useForm<SignUpFormData>({
 		defaultValues: { name: '', email: '', password: '' },
 		resolver: zodResolver(signUpSchema),
 	})
 	const { handleSubmit } = methods
-	const [isLoading, setIsLoading] = useState(false)
 
 	const onSubmit = async (values: SignUpFormData) => {
-		setIsLoading(true)
-		setTimeout(async () => {
-			setIsLoading(false)
-
-			try {
-				await setTokenToStorage({ accessToken: 'dev-token' })
-				setUser({ email: values.email })
-				router.replace('/activities')
-			} catch {
-				toast.error('Não foi possível criar sua conta')
-			}
-		}, 800)
+		try {
+			const { id, email, name } = await signUpMutation.mutateAsync(values)
+			setUser({ id, email, name })
+			router.replace('/activities')
+		} catch (error) {
+			const message = isAxiosError(error) ? error.response?.data?.message : null
+			toast.error(message ?? 'Não foi possível criar sua conta')
+		}
 	}
 
 	return (
@@ -78,8 +75,8 @@ export default function SignUpScreen() {
 									/>
 									<Input name="password" iconName="asterisk-1" placeholder="Senha" secureTextEntry autoComplete="password" textContentType="password" />
 								</View>
-								<Button variant="primary" isLoading={isLoading} onPress={handleSubmit(onSubmit)}>
-									{isLoading ? 'Cadastrando...' : 'Cadastrar'}
+								<Button variant="primary" isLoading={signUpMutation.isPending} onPress={handleSubmit(onSubmit)}>
+									{signUpMutation.isPending ? 'Cadastrando...' : 'Cadastrar'}
 								</Button>
 							</FormProvider>
 

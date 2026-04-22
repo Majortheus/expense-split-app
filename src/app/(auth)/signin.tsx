@@ -1,7 +1,7 @@
 import { toast } from '@backpackapp-io/react-native-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isAxiosError } from 'axios'
 import { useRouter } from 'expo-router'
-import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { z } from 'zod'
@@ -12,7 +12,7 @@ import { KeyboardScroll } from '@/components/keyboard-aware-scroll'
 import { Page } from '@/components/page/page'
 import { Typography } from '@/components/typography'
 import { useAuth } from '@/hooks/use-auth'
-import { setTokenToStorage } from '@/services/storage/token-storage'
+import { useUserSignInMutation } from '@/services/query/users'
 
 const signInSchema = z.object({
 	email: z.string().trim().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
@@ -24,28 +24,22 @@ type SignInFormData = z.infer<typeof signInSchema>
 export default function SignInScreen() {
 	const router = useRouter()
 	const { setUser } = useAuth()
+	const signInMutation = useUserSignInMutation()
 	const methods = useForm<SignInFormData>({
-		defaultValues: { email: 'a@a.com', password: '123' },
+		defaultValues: { email: '', password: '' },
 		resolver: zodResolver(signInSchema),
 	})
 	const { handleSubmit } = methods
-	const [isLoading, setIsLoading] = useState(false)
 
 	const onSubmit = async (values: SignInFormData) => {
-		setIsLoading(true)
-		setTimeout(async () => {
-			setIsLoading(false)
-			const validEmail = 'a@a.com'
-			const validPassword = '123'
-
-			if (values.email === validEmail && values.password === validPassword) {
-				await setTokenToStorage({ accessToken: 'dev-token' })
-				setUser({ email: values.email })
-				router.replace('/activities')
-			} else {
-				toast.error('Credenciais inválidas')
-			}
-		}, 800)
+		try {
+			const { id, email, name } = await signInMutation.mutateAsync(values)
+			setUser({ id, email, name })
+			router.replace('/activities')
+		} catch (error) {
+			const message = isAxiosError(error) ? error.response?.data?.message : null
+			toast.error(message ?? 'Credenciais inválidas')
+		}
 	}
 
 	return (
@@ -78,8 +72,8 @@ export default function SignInScreen() {
 									/>
 									<Input name="password" iconName="asterisk-1" placeholder="Senha" secureTextEntry autoComplete="password" textContentType="password" />
 								</View>
-								<Button variant="primary" isLoading={isLoading} onPress={handleSubmit(onSubmit)}>
-									{isLoading ? 'Entrando...' : 'Entrar'}
+								<Button variant="primary" isLoading={signInMutation.isPending} onPress={handleSubmit(onSubmit)}>
+									{signInMutation.isPending ? 'Entrando...' : 'Entrar'}
 								</Button>
 							</FormProvider>
 
