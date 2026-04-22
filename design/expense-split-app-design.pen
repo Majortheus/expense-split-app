@@ -1,5 +1,5 @@
 {
-  "version": "2.9",
+  "version": "2.11",
   "children": [
     {
       "type": "frame",
@@ -4219,8 +4219,8 @@
         {
           "type": "frame",
           "id": "Gppzx",
-          "x": 1140,
-          "y": 1164,
+          "x": 482,
+          "y": 1145,
           "name": "Detalhes da atividade",
           "width": 1840,
           "height": 1004,
