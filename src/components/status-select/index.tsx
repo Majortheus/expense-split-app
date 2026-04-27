@@ -7,11 +7,12 @@ import { Status } from '../status'
 
 export type StatusKey = 'pending' | 'partial' | 'paid'
 
+const DEFAULT_OPTIONS = ['pending', 'paid'] as const
+
 export interface StatusSelectProps extends ComponentProps<typeof View> {
 	name: string
+	onChange?: (value: Omit<StatusKey, 'partial'>) => void
 }
-
-const DEFAULT_OPTIONS = ['pending', 'paid'] as const
 
 export function StatusSelect({ name, className, ...props }: StatusSelectProps) {
 	const { control } = useFormContext()
@@ -33,7 +34,10 @@ export function StatusSelect({ name, className, ...props }: StatusSelectProps) {
 									accessibilityState={{ selected: isSelected }}
 									activeOpacity={0.8}
 									onPress={() => {
-										onChange?.(option)
+										onChange(option)
+										if (props.onChange) {
+											props.onChange(option)
+										}
 									}}
 								>
 									<Status

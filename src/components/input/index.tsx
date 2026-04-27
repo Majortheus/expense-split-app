@@ -33,8 +33,8 @@ export function Input({ name, className, iconName, ...props }: InputProps) {
 					<View className="flex-col gap-1">
 						<View className={wrapperClasses}>
 							{iconName ? (
-								<View className="mr-3">
-									<Icon name={iconName} className="h-5 w-5 text-gray-200" />
+								<View className="mr-2">
+									<Icon name={iconName} className="h-5 w-5 items-center justify-center text-gray-200" />
 								</View>
 							) : null}
 

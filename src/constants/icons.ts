@@ -1,3 +1,4 @@
+import CustomRealSignIcon from '@/components/icons/custom/real-sign'
 import ChevronDown from '@/components/icons/lucide/chevron-down'
 import ChevronLeft from '@/components/icons/lucide/chevron-left'
 import ChevronRight from '@/components/icons/lucide/chevron-right'
@@ -40,6 +41,7 @@ export const ICON_MAP = {
 	'chevron-down': ChevronDown,
 	'chevron-left': ChevronLeft,
 	'chevron-right': ChevronRight,
+	'real-sign': CustomRealSignIcon,
 } as const
 
 export type IconNames = keyof typeof ICON_MAP

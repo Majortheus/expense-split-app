@@ -22,12 +22,12 @@ export default function RootLayout() {
 				<QueryClientProvider client={queryClient}>
 					<StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 					<KeyboardProvider preload>
-						<BottomSheetProvider>
-							<AuthProvider>
+						<AuthProvider>
+							<BottomSheetProvider>
 								<RootLayoutNav />
 								<Toasts />
-							</AuthProvider>
-						</BottomSheetProvider>
+							</BottomSheetProvider>
+						</AuthProvider>
 					</KeyboardProvider>
 				</QueryClientProvider>
 			</GestureHandlerRootView>

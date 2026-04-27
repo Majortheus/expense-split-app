@@ -7,6 +7,8 @@ import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { twMerge } from 'tailwind-merge'
 import { Input } from '@/components/input'
 import { Typography } from '@/components/typography'
+import { getInitials } from '@/utils/text-helpers'
+import { Avatar } from '../avatar'
 import { Button } from '../button'
 // import { Button } from '../button'
 import { Icon } from '../icon'
@@ -87,11 +89,7 @@ export function Select({ name, options, placeholder, multiple = false, ...props 
 								<ScrollView className={twMerge('mt-2 max-h-[160px] rounded-[10px] border border-gray-600 bg-gray-600 py-1')}>
 									{value.map((item: string) => (
 										<View key={item} className="flex-row items-center gap-3 px-4 py-1.5">
-											<View className="h-8 w-8 items-center justify-center rounded-full bg-gray-500">
-												<Typography variant="heading-sm" className="text-[11px]">
-													UN
-												</Typography>
-											</View>
+											<Avatar label={getInitials(options.find((o) => o.value === item)?.label ?? '')} size="sm" />
 											<Typography variant="label-md" className="flex-1">
 												{options.find((o) => o.value === item)?.label}
 											</Typography>
@@ -116,13 +114,9 @@ export function Select({ name, options, placeholder, multiple = false, ...props 
 														key={item.value}
 														activeOpacity={0.7}
 														onPress={() => handleSelect(item.value)}
-														className="flex-1 flex-row items-center gap-3 px-4 py-1.5 hover:bg-gray-500 active:bg-gray-500"
+														className="flex-row items-center gap-3 px-4 py-1.5 hover:bg-gray-500 active:bg-gray-500"
 													>
-														<View className="h-8 w-8 items-center justify-center rounded-full bg-gray-500">
-															<Typography variant="heading-sm" className="text-[11px]">
-																UN
-															</Typography>
-														</View>
+														<Avatar label={getInitials(item.label)} size="sm" />
 														<Typography variant="label-md" className="flex-1">
 															{item.label}
 														</Typography>

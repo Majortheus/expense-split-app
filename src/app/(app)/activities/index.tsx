@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { useRouter } from 'expo-router'
+import { useState } from 'react'
 import { FlatList, View } from 'react-native'
 import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { ActivityCard } from '@/components/app-page/activities/activity-card'
-import { CreateActivityModal } from '@/components/app-page/activities/create-activity-modal'
+import { ActivityFormModal } from '@/components/app-page/activities/create-activity-modal'
 import { Button } from '@/components/button'
 import { Header } from '@/components/page/header'
 import { Page } from '@/components/page/page'
@@ -65,7 +65,7 @@ export default function ActivitiesScreen() {
 					</View>
 				</View>
 
-				<CreateActivityModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+				<ActivityFormModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
 			</View>
 		</Page>
 	)
