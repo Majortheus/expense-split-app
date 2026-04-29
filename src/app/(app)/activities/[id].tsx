@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import clsx from 'clsx'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useState } from 'react'
+import { useLocalSearchParams } from 'expo-router'
+import { useEffect, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { FlatList, Pressable, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
@@ -18,6 +18,7 @@ import { Select } from '@/components/select'
 import { Status } from '@/components/status'
 import { StatusSelect } from '@/components/status-select'
 import { Typography } from '@/components/typography'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useBottomSheet } from '@/hooks/use-bottom-sheets'
 import { useActivityByIdQuery } from '@/services/query/activities'
 import {
@@ -26,13 +27,13 @@ import {
 	useExpenseByIdQuery,
 	useExpensesByActivityIdQuery,
 	useToggleExpenseParticipantPaymentMutation,
+	useUpdateExpenseMutation,
 } from '@/services/query/expenses'
 import { useUsersQuery } from '@/services/query/users'
 import { formatCurrencyBRL } from '@/utils/formatters'
 import { getInitials } from '@/utils/text-helpers'
 
 export default function ActivityDetailsScreen() {
-	const router = useRouter()
 	const params = useLocalSearchParams<{ id?: string }>()
 	const { openBottomSheet, closeBottomSheet } = useBottomSheet()
 	const [isEditOpen, setIsEditOpen] = useState(false)
@@ -44,13 +45,7 @@ export default function ActivityDetailsScreen() {
 		<Page>
 			<View className="w-full flex-1 bg-gray-800 px-6 pt-6 pb-0">
 				<View className="w-full flex-1 gap-4 pb-5">
-					<ActivityDetailsHeader
-						title={data?.name}
-						date={data?.activityDate}
-						isLoading={isLoading}
-						onBackPress={() => router.back()}
-						onEditPress={() => setIsEditOpen(true)}
-					/>
+					<ActivityDetailsHeader title={data?.name} date={data?.activityDate} isLoading={isLoading} onEditPress={() => setIsEditOpen(true)} />
 
 					{isLoading ? (
 						<View className="flex-1 items-center justify-center">
@@ -70,7 +65,11 @@ export default function ActivityDetailsScreen() {
 					) : data?.expenses.length === 0 ? (
 						<View className="flex-1 items-center justify-center gap-4">
 							<ActivityDetailsEmptyState />
-							<Button className="w-[182px]" startIconName="add-1" onPress={() => openBottomSheet(<ExpenseDrawerContent onClose={closeBottomSheet} />)}>
+							<Button
+								className="w-[182px]"
+								startIconName="add-1"
+								onPress={() => openBottomSheet(<ExpenseDrawerContent activityId={params.id} onClose={closeBottomSheet} />)}
+							>
 								Nova despesa
 							</Button>
 						</View>
@@ -113,20 +112,17 @@ export default function ActivityDetailsScreen() {
 									</View>
 								}
 								renderItem={({ item }) => (
-									<Pressable
-										onPress={() =>
-											openBottomSheet(<ExpenseDetailSheet expenseId={item.id} onClose={closeBottomSheet} />, {
-												snapPoints: ['88%'],
-												enablePanDownToClose: true,
-											})
-										}
-									>
+									<Pressable onPress={() => openBottomSheet(<ExpenseDetailSheet expenseId={item.id} onClose={closeBottomSheet} />)}>
 										<ExpenseDetail id={item.id} />
 									</Pressable>
 								)}
 							/>
 							<View className="items-end">
-								<Button className="w-[113px]" startIconName="add-1" onPress={() => openBottomSheet(<ExpenseDrawerContent onClose={closeBottomSheet} />)}>
+								<Button
+									className="w-[113px]"
+									startIconName="add-1"
+									onPress={() => openBottomSheet(<ExpenseDrawerContent activityId={params.id} onClose={closeBottomSheet} />)}
+								>
 									Nova
 								</Button>
 							</View>
@@ -149,6 +145,8 @@ export default function ActivityDetailsScreen() {
 }
 
 function ExpenseDetailSheet({ expenseId, onClose }: { expenseId: string; onClose: () => void }) {
+	const { openBottomSheet, closeBottomSheet } = useBottomSheet()
+
 	const { data: expenseData } = useExpenseByIdQuery(expenseId)
 	const { mutate: togglePaymentStatus } = useToggleExpenseParticipantPaymentMutation()
 	const { mutate: deleteExpense } = useDeleteExpenseMutation()
@@ -204,7 +202,7 @@ function ExpenseDetailSheet({ expenseId, onClose }: { expenseId: string; onClose
 									</View>
 									<StatusSelect
 										name={`participants[${index}].paymentStatus`}
-										onChange={(value) => {
+										onChange={() => {
 											togglePaymentStatus({
 												expenseId: expenseId,
 												participantId: participant.userId,
@@ -225,12 +223,32 @@ function ExpenseDetailSheet({ expenseId, onClose }: { expenseId: string; onClose
 					startIconName="recycle-bin-2"
 					onPress={() => {
 						deleteExpense({
+							activityId: expenseData?.activityId,
 							expenseId: expenseId,
 						})
 						onClose()
 					}}
 				/>
-				<Button variant="secondary" className="w-[110px]" startIconName="pencil" onPress={onClose}>
+				<Button
+					variant="secondary"
+					className="w-[110px]"
+					startIconName="pencil"
+					onPress={() => {
+						openBottomSheet(
+							<ExpenseDrawerContent
+								activityId={expenseData?.activityId}
+								defaultValues={{
+									id: expenseData?.id,
+									title: expenseData?.name ?? '',
+									amount: ((expenseData?.amountInCents ?? 0) / 100).toString().replace('.', ','),
+									participants: expenseData?.participants.map((p) => p.userId) ?? [],
+								}}
+								onClose={closeBottomSheet}
+							/>,
+						)
+						// onClose()
+					}}
+				>
 					Editar
 				</Button>
 			</View>
@@ -247,27 +265,43 @@ const expenseDrawerSchema = z.object({
 
 type ExpenseDrawerFormData = z.infer<typeof expenseDrawerSchema>
 
-function ExpenseDrawerContent({ onClose }: { onClose: () => void }) {
-	const params = useLocalSearchParams<{ id?: string }>()
-
+function ExpenseDrawerContent({ activityId, defaultValues, onClose }: { activityId?: string; defaultValues?: ExpenseDrawerFormData; onClose: () => void }) {
 	const [isLoading, setIsLoading] = useState(false)
 
-	const { data: usersList } = useUsersQuery()
+	const { data: usersList, isLoading: isUsersLoading } = useUsersQuery()
 	const createExpenseMutation = useCreateExpenseMutation()
+	const updateExpenseMutation = useUpdateExpenseMutation()
 
 	const methods = useForm<ExpenseDrawerFormData>({
-		defaultValues: { title: '', amount: '', participants: [] },
+		defaultValues: defaultValues ?? { title: '', amount: '', participants: [] },
 		resolver: zodResolver(expenseDrawerSchema),
 	})
 
+	useEffect(() => {
+		if (defaultValues) {
+			methods.reset(defaultValues)
+		}
+	}, [defaultValues, methods.reset])
+
+	console.log('Default Values:', defaultValues)
+	console.log('Form Values:', methods.getValues())
+
 	const onSubmit = async (values: ExpenseDrawerFormData) => {
-		if (!params.id) return
+		if (!activityId) return
 		try {
 			setIsLoading(true)
 			if (values.id) {
+				updateExpenseMutation.mutate({
+					expenseId: values.id,
+					data: {
+						title: values.title,
+						amountInCents: Math.round(parseFloat(values.amount.replace(',', '.')) * 100),
+						participantsIds: values.participants,
+					},
+				})
 			} else {
-				await createExpenseMutation.mutateAsync({
-					activityId: params.id,
+				createExpenseMutation.mutate({
+					activityId: activityId,
 					data: {
 						title: values.title,
 						amountInCents: Math.round(parseFloat(values.amount.replace(',', '.')) * 100),
@@ -296,12 +330,16 @@ function ExpenseDrawerContent({ onClose }: { onClose: () => void }) {
 				<View className="gap-2">
 					<Input name="title" placeholder="Título da despesa" />
 					<Input name="amount" placeholder="0,00" keyboardType="decimal-pad" iconName="real-sign" />
-					<Select
-						name="participants"
-						placeholder="Participantes"
-						options={usersList ? usersList.users.map((user) => ({ label: user.name, value: user.id })) : []}
-						multiple
-					/>
+					{isUsersLoading ? (
+						<Skeleton className="h-[50px] w-full" />
+					) : (
+						<Select
+							name="participants"
+							placeholder="Participantes"
+							options={usersList ? usersList.users.map((user) => ({ label: user.name, value: user.id })) : []}
+							multiple
+						/>
+					)}
 				</View>
 
 				<Button className="w-full" onPress={methods.handleSubmit(onSubmit)} isLoading={isLoading}>
@@ -321,7 +359,7 @@ function ExpenseDetail({ id }: ExpenseDetailProps) {
 	const participantCount = expenseData?.participants.length ?? 0
 	const amountPerPersonInCents = participantCount > 0 ? Math.round((expenseData?.amountInCents ?? 0) / participantCount) : 0
 	const status = getExpenseStatus(expenseData?.participants.map((participant) => participant.paymentStatus))
-	const avatars = expenseData?.participants.slice(0, 2) ?? []
+	const avatars = expenseData?.participants ?? []
 
 	return (
 		<View className="w-full rounded-[10px] border border-gray-600 bg-gray-700 p-4">

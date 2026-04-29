@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { ActivityDetailResponse } from '@/@types/api/activities'
 import type {
 	CreateExpenseRequest,
 	CreateExpenseResponse,
@@ -10,6 +11,8 @@ import type {
 	ToggleParticipantPaymentResponse,
 	UpdateExpenseRequest,
 } from '@/@types/api/expenses'
+import type { UserListResponse } from '@/@types/api/users'
+import { participants } from '@/mocks/expense-split'
 import { api } from '@/services/api'
 
 const OPTIMISTIC_EXPENSE_ID = 'optimistic-expense'
@@ -96,14 +99,60 @@ export function useCreateExpenseMutation() {
 			if (currentExpenses) {
 				queryClient.setQueryData<ExpenseListResponse>(['expenses', 'activity', activityId], {
 					expenses: [
+						...currentExpenses.expenses,
 						{
 							amountInCents: data.amountInCents,
 							id: OPTIMISTIC_EXPENSE_ID,
 							name: data.title,
 							participantsCount: data.participantsIds.length,
 						},
-						...currentExpenses.expenses,
 					],
+				})
+
+				const allUsers = await queryClient.getQueryData<UserListResponse>(['users', 'all'])
+
+				queryClient.setQueryData<ExpenseDetailResponse>(['expenses', OPTIMISTIC_EXPENSE_ID], {
+					id: OPTIMISTIC_EXPENSE_ID,
+					createdAt: new Date().toISOString(),
+					activityId,
+					activityName: '',
+					name: data.title,
+					payments: [],
+					amountInCents: data.amountInCents,
+					participants: data.participantsIds.map((userId) => {
+						const user = allUsers?.users.find((user) => user.id === userId)
+						return {
+							amountOwedInCents: Math.floor(data.amountInCents / data.participantsIds.length),
+							amountPaidInCents: 0,
+							email: user?.email ?? '',
+							name: user?.name ?? '',
+							paymentStatus: 'pending',
+							remainingDebtInCents: Math.floor(data.amountInCents / data.participantsIds.length),
+							userId,
+						}
+					}),
+					payer: undefined,
+				} as ExpenseDetailResponse)
+
+				queryClient.setQueryData<ActivityDetailResponse>(['activities', activityId], (prev) => {
+					const participants = prev?.participants ?? []
+					for (const participantId of data.participantsIds) {
+						if (!participants.some((p) => p.id === participantId)) {
+							const user = allUsers?.users.find((user) => user.id === participantId)
+
+							participants.push({
+								id: participantId,
+								email: user?.email ?? '',
+								name: user?.name ?? '',
+							})
+						}
+					}
+
+					return {
+						...prev,
+						totalAmountInCents: (prev?.totalAmountInCents ?? 0) + data.amountInCents,
+						participants: prev?.participants,
+					} as ActivityDetailResponse
 				})
 			}
 
@@ -147,6 +196,11 @@ export function useCreateExpenseMutation() {
 						: expense,
 				),
 			})
+
+			queryClient.removeQueries({
+				queryKey: ['expenses', OPTIMISTIC_EXPENSE_ID],
+				exact: true,
+			})
 		},
 	})
 }
@@ -163,29 +217,51 @@ export function useUpdateExpenseMutation() {
 			const previousDetail = queryClient.getQueryData<ExpenseDetailResponse>(['expenses', expenseId])
 			const previousLists = getExpenseLists(queryClient)
 
+			const allUsers = queryClient.getQueryData<UserListResponse>(['users', 'all'])
+
 			if (previousDetail) {
 				queryClient.setQueryData<ExpenseDetailResponse>(['expenses', expenseId], {
 					...previousDetail,
 					amountInCents: data.amountInCents ?? previousDetail.amountInCents,
 					name: data.title ?? previousDetail.name,
+					participants: (data.participantsIds ?? []).map((participantId) => {
+						const previousParticipant = previousDetail.participants.find((p) => p.userId === participantId)
+						const user = allUsers?.users.find((user) => user.id === participantId)
+
+						return {
+							amountOwedInCents: Math.floor((data.amountInCents ?? 0) / (data.participantsIds?.length ?? 1)),
+							amountPaidInCents: previousParticipant?.amountPaidInCents ?? 0,
+							email: user?.email ?? previousParticipant?.email ?? '',
+							name: user?.name ?? previousParticipant?.name ?? '',
+							paymentStatus: previousParticipant?.paymentStatus ?? 'pending',
+							remainingDebtInCents: Math.floor((data.amountInCents ?? 0) / (data.participantsIds?.length ?? 1)),
+							userId: participantId,
+						}
+					}),
 				})
 			}
 
-			for (const [queryKey, list] of previousLists) {
-				if (!list) continue
+			queryClient.setQueryData<ExpenseListResponse>(['expenses', 'activity', previousDetail?.activityId], (prev) => {
+				if (!prev) return { expenses: [] }
 
-				queryClient.setQueryData<ExpenseListResponse>(queryKey, {
-					expenses: list.expenses.map((expense) =>
-						expense.id === expenseId
-							? {
-									...expense,
-									amountInCents: data.amountInCents ?? expense.amountInCents,
-									name: data.title ?? expense.name,
-								}
-							: expense,
-					),
+				prev.expenses = prev.expenses.map((expense) => {
+					if (expense.id === expenseId) {
+						expense.amountInCents = expense.amountInCents - (previousDetail?.amountInCents ?? 0) + (data.amountInCents ?? 0)
+						expense.name = data.title ?? expense.name
+						expense.participantsCount = data.participantsIds?.length ?? expense.participantsCount
+					}
+					return expense
 				})
-			}
+
+				return prev
+			})
+
+			queryClient.setQueryData<ActivityDetailResponse>(['activities', previousDetail?.activityId], (prev) => {
+				return {
+					...prev,
+					totalAmountInCents: (prev?.totalAmountInCents ?? 0) - (previousDetail?.amountInCents ?? 0) + (data.amountInCents ?? 0),
+				} as ActivityDetailResponse
+			})
 
 			return {
 				previousDetail,
@@ -277,6 +353,15 @@ export function useDeleteExpenseMutation() {
 					queryClient.setQueryData<ExpenseListResponse>(['expenses', 'activity', activityId], {
 						expenses: currentExpenses.expenses.filter((expense) => expense.id !== expenseId),
 					})
+
+					queryClient.setQueryData<ActivityDetailResponse>(
+						['activities', activityId],
+						(prev) =>
+							({
+								...prev,
+								totalAmountInCents: (prev?.totalAmountInCents ?? 0) - (previousDetail?.amountInCents ?? 0),
+							}) as ActivityDetailResponse,
+					)
 				}
 			}
 

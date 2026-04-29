@@ -36,6 +36,26 @@ export function Typography({ children, className, variant = 'text-md', truncate 
 					className,
 				),
 			)}
+			style={{
+				lineHeight:
+					variant === 'label-lg'
+						? 20 * 1.5
+						: variant === 'label-md'
+							? 16 * 1.5
+							: variant === 'label-sm'
+								? 14 * 1.5
+								: variant === 'text-md'
+									? 16 * 1.5
+									: variant === 'text-sm'
+										? 14 * 1.5
+										: variant === 'text-xs'
+											? 12 * 1.5
+											: variant === 'heading-lg'
+												? 20 * 1.3
+												: variant === 'heading-sm'
+													? 14 * 1.3
+													: undefined,
+			}}
 			numberOfLines={truncate ? 1 : undefined}
 			ellipsizeMode={truncate ? 'tail' : undefined}
 			{...props}

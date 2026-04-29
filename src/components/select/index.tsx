@@ -38,6 +38,8 @@ export function Select({ name, options, placeholder, multiple = false, ...props 
 
 	useEffect(() => {
 		if (!open && selected.length > 0 && !options.some((o) => selected.includes(o.value))) {
+			console.log('Selected values:', selected)
+			console.log('Available options:', options)
 			setError(name, { message: 'Opção inválida' })
 		}
 	}, [open, selected, options, setError, name])

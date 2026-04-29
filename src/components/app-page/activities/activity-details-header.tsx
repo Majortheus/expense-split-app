@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import { Pressable, View } from 'react-native'
 import { Icon } from '@/components/icon'
 import { Typography } from '@/components/typography'
@@ -8,16 +9,17 @@ type ActivityDetailsHeaderProps = {
 	title?: string
 	date?: string
 	isLoading: boolean
-	onBackPress: () => void
 	onEditPress: () => void
 }
 
-export function ActivityDetailsHeader({ title, date, isLoading, onBackPress, onEditPress }: ActivityDetailsHeaderProps) {
+export function ActivityDetailsHeader({ title, date, isLoading, onEditPress }: ActivityDetailsHeaderProps) {
+	const router = useRouter()
+
 	return (
 		<View className="relative w-full">
 			<View className="flex-row items-start justify-between gap-4">
 				<View className="flex-1 gap-3">
-					<Pressable onPress={onBackPress} className="flex-row items-center gap-2 py-1">
+					<Pressable onPress={() => router.back()} className="flex-row items-center gap-2 py-1">
 						<Icon name="chevron-left" className="h-4 w-4 text-green-light" />
 						<Typography variant="text-sm" className="text-green-light">
 							Voltar

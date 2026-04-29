@@ -40,8 +40,7 @@ export function DatePickerInput({ name, placeholder = 'Data' }: DatePickerInputP
 					{isOpen && (
 						<DateTimePicker
 							value={value}
-							onValueChange={(event, selectedDate) => {
-								console.log({ event, selectedDate })
+							onValueChange={(_, selectedDate) => {
 								onChange(selectedDate)
 								setIsOpen(false)
 							}}

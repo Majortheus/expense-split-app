@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { Icon } from '@/components/icon'
 import { SafeAreaView } from '@/components/safe-area-view'
 import { Typography } from '@/components/typography'
+import type { IconNames } from '@/constants/icons'
 
 type AppTabRoute = 'activities' | 'summary' | 'participants'
 
@@ -24,16 +25,18 @@ function TabBar({ descriptors }: BottomTabBarProps) {
 		<SafeAreaView edges={['bottom']} className="bg-gray-700">
 			<View className="items-center justify-between border-gray-800 border-t bg-gray-700 px-6 py-5">
 				<View className="w-full max-w-5xl flex-row gap-4">
-					{Object.entries(descriptors).map(([key, descriptor]) => (
-						<Tab key={key} descriptor={descriptor} />
-					))}
+					{Object.entries(descriptors)
+						.filter(([_, descriptor]) => TAB_CONFIG[descriptor.route.name as AppTabRoute])
+						.map(([key, descriptor]) => (
+							<Tab key={key} descriptor={descriptor} />
+						))}
 				</View>
 			</View>
 		</SafeAreaView>
 	)
 }
 
-const TAB_CONFIG = {
+const TAB_CONFIG: { [key in AppTabRoute]: { icon: IconNames; activeIcon: IconNames } } = {
 	activities: {
 		icon: 'bullet-list',
 		activeIcon: 'bullet-list-solid',
