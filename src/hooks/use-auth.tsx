@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import type React from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getUserFromStorage, removeUserFromStorage, setUserToStorage } from '@/services/storage/user-storage'
@@ -17,6 +18,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+	const router = useRouter()
 	const [user, setUser] = useState<User>(null)
 
 	useEffect(() => {
@@ -41,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	async function signOut() {
 		await removeUserFromStorage()
 		setUser(null)
+		router.replace('/signin')
 	}
 
 	return <AuthContext.Provider value={{ user, setUser: updateUser, signOut }}>{children}</AuthContext.Provider>

@@ -1,10 +1,11 @@
 import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { FlatList, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { ActivityCard } from '@/components/app-page/activities/activity-card'
 import { ActivityFormModal } from '@/components/app-page/activities/create-activity-modal'
 import { Button } from '@/components/button'
+import { Icon } from '@/components/icon'
 import { Header } from '@/components/page/header'
 import { Page } from '@/components/page/page'
 import { Spinner } from '@/components/spinner'
@@ -38,7 +39,12 @@ export default function ActivitiesScreen() {
 			<View className="w-full flex-1 bg-gray-800 px-6 pt-6 pb-6">
 				<View className="relative w-full flex-1 gap-4">
 					<Header title="Atividades" subtitle="Organize suas despesas divididas" />
-
+					<Pressable
+						onPress={() => router.push('/profile')}
+						className="absolute top-0 right-0 h-12 w-12 items-center justify-center rounded-full border border-gray-500 bg-gray-600"
+					>
+						<Icon name="user-circle-single" className="h-6 w-6 text-gray-300" />
+					</Pressable>
 					<View className="relative flex-1">
 						{isLoading ? (
 							<View className="flex-1 items-center justify-center gap-3">
