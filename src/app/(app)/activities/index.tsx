@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router'
-import { useState } from 'react'
+import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
 import { FlatList, View } from 'react-native'
 import { ActivitiesEmptyState } from '@/components/activities-empty-state'
 import { ActivityCard } from '@/components/app-page/activities/activity-card'
@@ -15,11 +15,23 @@ import { useActivitiesByUserIdQuery } from '@/services/query/activities'
 export default function ActivitiesScreen() {
 	const router = useRouter()
 	const { user } = useAuth()
-	const [isCreateOpen, setIsCreateOpen] = useState(false)
+	const localParams = useLocalSearchParams()
+	const [isCreateOpen, setIsCreateOpen] = useState(localParams.openCreateModal === 'true')
 
 	const { data, isLoading, isError, refetch } = useActivitiesByUserIdQuery(user?.id)
 
 	const isEmpty = !isLoading && data?.activities.length === 0
+
+	const closeCreateModal = () => {
+		setIsCreateOpen(false)
+		router.replace('/activities')
+	}
+
+	useEffect(() => {
+		if (localParams.openCreateModal === 'true') {
+			setIsCreateOpen(true)
+		}
+	}, [localParams.openCreateModal])
 
 	return (
 		<Page>
@@ -65,7 +77,7 @@ export default function ActivitiesScreen() {
 					</View>
 				</View>
 
-				<ActivityFormModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+				<ActivityFormModal isOpen={isCreateOpen} onClose={closeCreateModal} />
 			</View>
 		</Page>
 	)
