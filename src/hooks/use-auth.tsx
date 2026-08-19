@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router'
 import type React from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { isMockMode } from '@/envs'
 import { getUserFromStorage, removeUserFromStorage, setUserToStorage } from '@/services/storage/user-storage'
 
 type User = {
@@ -17,14 +18,20 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
+export const demoUser = {
+	id: 'demo-user',
+	name: 'Marina Costa',
+	email: 'marina@demo.local',
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const router = useRouter()
-	const [user, setUser] = useState<User>(null)
+	const [user, setUser] = useState<User>(isMockMode ? demoUser : null)
 
 	useEffect(() => {
 		async function loadUser() {
 			const storedUser = await getUserFromStorage()
-			setUser(storedUser)
+			setUser(storedUser ?? (isMockMode ? demoUser : null))
 		}
 
 		loadUser()

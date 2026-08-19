@@ -3,7 +3,11 @@ import { Platform } from 'react-native'
 import { z } from 'zod'
 
 const envSchema = z.object({
-	EXPO_PUBLIC_API_URL: z.string().url().optional(),
+	EXPO_PUBLIC_API_URL: z.preprocess((value) => (value === '' ? undefined : value), z.string().url().optional()),
+	EXPO_PUBLIC_USE_MOCKS: z
+		.string()
+		.optional()
+		.transform((value) => (value === undefined ? undefined : value === 'true')),
 	NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
 })
 
@@ -12,3 +16,5 @@ export const env = envSchema.parse(process.env)
 if (Platform.OS === 'android') {
 	env.EXPO_PUBLIC_API_URL = env.EXPO_PUBLIC_API_URL?.replace('localhost', '10.0.2.2')
 }
+
+export const isMockMode = env.EXPO_PUBLIC_USE_MOCKS ?? !env.EXPO_PUBLIC_API_URL

@@ -1,6 +1,4 @@
-import { useEffect } from 'react'
 import { Modal, Pressable, View } from 'react-native'
-import { useBottomSheet } from '@/hooks/use-bottom-sheets'
 
 type ModalSheetProps = {
 	open: boolean
@@ -9,16 +7,6 @@ type ModalSheetProps = {
 }
 
 export function ModalSheet({ open, onClose, children }: ModalSheetProps) {
-	const { setOpen } = useBottomSheet()
-
-	useEffect(() => {
-		setOpen(open)
-
-		return () => {
-			setOpen(false)
-		}
-	}, [open, setOpen])
-
 	return (
 		<Modal transparent animationType="fade" visible={open} onRequestClose={onClose}>
 			<View className="flex-1 justify-end bg-black/80">
